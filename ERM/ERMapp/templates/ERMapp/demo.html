@@ -1,0 +1,368 @@
+
+<!-- =========== Main Html File =============== -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Sample</title>
+    <meta charset="utf-8" />
+    <!-- For Bootstrap 5 -->
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <!-- For JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/typed.js@2.0.12"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.0/css/all.css" integrity="sha384-lZN37f5QGtY3VHgisS14W3ExzMWZxybE1SJSEsQp9S+oqd12jhcu+A56Ebc1zFSJ" crossorigin="anonymous" />
+    <script src="https://kit.fontawesome.com/b5c2cc2edf.js" crossorigin="anonymous"></script>
+    <!-- For CSS -->
+    {% load static %}
+    <link href="{% static 'ERMapp/mouse.css' %}" rel="stylesheet" />
+  </head>
+  <body>
+    <script>
+      // var cardNo = 1 // Declared globally
+      var itemCode = []
+      var itemName = []
+      var unitPrice = []
+      var stock = []
+    </script>
+    <div class="container-fluid pt-3">
+      <!-- ===== Sales Order ===== -->
+      <form id="myForm" method="post" action="{% url 'data:homefunc' %}">
+        {% csrf_token %}
+        <div class="card rounded">
+          <div class="card-body">
+            <div class="col-12 d-flex justify-content-center bg-success shadow">
+              <h1 class="p-3 text-white">Sales Order</h1>
+            </div>
+            <!-- ========= Customer Code & Name ============ -->
+            <div class="row pt-3">
+              <div class="col-xl-2">
+                <label class="lead" style="font-family: Times New Roman, Times, serif;"><i class="fa-solid fa-user ps-3 pe-3"></i>Customer Code:</label>
+              </div>
+              <div class="col-xl-4">
+                <div data-mdb-input-init class="form-outline pb-4 pe-4">
+                  <input type="number" class="form-control" placeholder="Customer Code" name="code" id="code" onchange="insert()" />
+                  <span></span>
+                  <script>
+                    // For Submitting Form on pressing Enter
+                    function insert() {
+                      const applicantForm = document.querySelector('form')
+                      applicantForm.addEventListener('keypress', function (event) {
+                        if (event.keyCode === 13) {
+                          event.preventDefault()
+                          applicantForm.submit()
+                        }
+                      })
+                    }
+                  </script>
+                </div>
+              </div>
+              <div class="col-xl-2">
+                <label class="lead" style="font-family: Times New Roman, Times, serif;"><i class="fa-solid fa-user ps-3 pe-3"></i>Customer Name:</label>
+              </div>
+              <div class="col-xl-4">
+                <div data-mdb-input-init class="form-outline pb-4 pe-4">
+                  <input type="text" class="form-control" placeholder="Customer Name" name="name" id="name" value="" />
+                  <span></span>
+                </div>
+              </div>
+            </div>
+
+            <!-- ========= Customer Order Number & Order Date ============ -->
+            <div class="row pt-3">
+              <div class="col-xl-2">
+                <label class="lead" style="font-family: Times New Roman, Times, serif;"><i class="fa-solid fa-user ps-3 pe-3"></i>Order Number:</label>
+              </div>
+              <div class="col-xl-4">
+                <div data-mdb-input-init class="form-outline pb-4 pe-4">
+                  <input type="text" class="form-control" placeholder="Order Number" name="orderNumber" id="orderNumber" value="" />
+                  <span></span>
+                </div>
+              </div>
+              <div class="col-xl-2">
+                <label class="lead" style="font-family: Times New Roman, Times, serif;"><i class="fa-solid fa-user ps-3 pe-3"></i>Order Date:</label>
+              </div>
+              <div class="col-xl-4">
+                <div data-mdb-input-init class="form-outline pb-4 pe-4">
+                  <input type="date" class="form-control" name="date" id="date" />
+                  <span></span>
+                  <script>
+                    // Present Date
+                    let currentDate = new Date()
+                    let formattedDate = currentDate.toISOString().split('T')[0]
+                    document.getElementById('date').value = formattedDate
+                  </script>
+                </div>
+              </div>
+
+              {% for x in values %}
+                <script>
+                  // Customer Values From Django
+                  let customerCode = '{{ x.customerCode }}';
+                  let name = '{{ x.name }}';
+                  let orderNumber = '{{ x.orderNumber }}';
+                  document.getElementById('code').value = customerCode;
+                  document.getElementById('name').value = name;
+                  document.getElementById('orderNumber').value = orderNumber;
+                </script>
+              {% endfor %}
+            </div>
+          </div>
+        </div>
+      </form>
+      <hr />
+      <h2 class="text-center">Items</h2>
+      <hr />
+      <!-- ===== Items ===== -->
+      <form id="orderForm" method="post" action="{% url 'data:formvalue' %}">
+        {% csrf_token %}
+        <!-- ======= CARD ========== -->
+        <!-- ======= Customer Hidden Input For Form ========== -->
+        <input type="hidden" name="customerCode" id="customerCode" />
+        <script>
+          let cstmrcode = document.getElementById('code').value;
+          document.getElementById('customerCode').value = cstmrcode;
+        </script>
+        <input type="hidden" name="customerName" id="customerName" />
+        <script>
+          let cstmrname = document.getElementById('name').value;
+          document.getElementById('customerName').value = cstmrname;
+        </script>
+        <input type="hidden" name="customerOrderNumber" id="customerOrderNumber"  />
+        <script>
+          let cstmrorderNumber = document.getElementById('orderNumber').value;
+          document.getElementById('customerOrderNumber').value = cstmrorderNumber;
+        </script>
+        <input type="hidden" name="customerOrderDate" id="customerOrderDate" />
+        <script>
+          let cstmrdate = document.getElementById('date').value;
+          document.getElementById('customerOrderDate').value = cstmrdate;
+        </script>
+        <!-- ======= Customer Hidden Input END ========== -->
+        <div id="container"></div>
+        <script>
+
+        let container = document.getElementById("container");
+
+        // Function to generate a card
+        function card(itemCode = "", itemName = "", quantity = "", stock = "", unitPrice = "", total = "") {
+            let cardHTML = `
+                <div class="pt-3 card-item">
+                  <div class="card rounded shadow bg-light">
+                    <div class="card-body">
+                      <div class="row pt-3">
+                        <div class="col-lg-2">
+                          <label class="lead"><i class="fa-solid fa-user ps-3 pe-3"></i>Item Code:</label>
+                        </div>
+                        <div class="col-lg-2">
+                          <input type="number" class="form-control" placeholder="Item Code" name="itemCode[]" onchange="enter()" />
+                        </div>
+                        <div class="col-lg-2">
+                          <label class="lead"><i class="fa-solid fa-user ps-3 pe-3"></i>Item Name:</label>
+                        </div>
+                        <div class="col-lg-2">
+                          <input type="text" class="form-control" placeholder="Item Name" name="itemName[]" />
+                        </div>
+                        <div class="col-lg-2">
+                          <label class="lead"><i class="fa-solid fa-user ps-3 pe-3"></i>Quantity:</label>
+                        </div>
+                        <div class="col-lg-2">
+                          <input type="number" class="form-control" placeholder="Quantity" name="quantity[]" onchange="quantityFun()"/>
+                        </div>
+                      </div>
+
+                      <div class="row pt-3">
+                        <div class="col-lg-2">
+                          <label class="lead"><i class="fa-solid fa-user ps-3 pe-3"></i>Stock:</label>
+                        </div>
+                        <div class="col-lg-2">
+                          <input type="number" class="form-control" placeholder="Stock" name="stock[]" />
+                        </div>
+                        <div class="col-lg-2">
+                          <label class="lead"><i class="fa-solid fa-user ps-3 pe-3"></i>Unit Price:</label>
+                        </div>
+                        <div class="col-lg-2">
+                          <input type="number" class="form-control" placeholder="Unit Price" name="unitPrice[]"/>
+                        </div>
+                        <div class="col-lg-2">
+                          <label class="lead"><i class="fa-solid fa-user ps-3 pe-3"></i>Total:</label>
+                        </div>
+                        <div class="col-lg-2">
+                          <input type="number" class="form-control" placeholder="Total" name="total[]" />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>`;
+
+            container.innerHTML += cardHTML;
+        }
+
+        // For Counting Total
+          function quantityFun() {
+              var quantityInputs = document.getElementsByName("quantity[]");
+              var totalInputs = document.getElementsByName("total[]");
+
+              for (var i = 0; i < quantityInputs.length; i++) {
+                  var x = parseFloat(quantityInputs[i].value) || 0; // Convert to number, default 0 if empty
+                  totalInputs[i].value = x * 5; // Update corresponding total field
+              }
+          }
+
+          // For Submitting Form on pressing Enter
+          function enter(){
+            const orderForm = document.querySelector('orderForm');
+            applicantForm.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                event.preventDefault();
+                orderForm.submit();
+              }
+            });
+          }
+
+        // Function to Save Cards to LocalStorage
+        function saveCards() {
+            let cardCount = document.querySelectorAll(".card-item").length; // Count total cards
+            localStorage.setItem("cardCount", cardCount); // Store count in localStorage
+        }
+
+        // Function to Load Cards from LocalStorage
+        function loadCards() {
+            let cardCount = localStorage.getItem("cardCount") || 0; // Get stored card count (default 0)
+
+            for (let i = 0; i < cardCount; i++) {
+                card(); // Add empty cards based on the count
+            }
+        }
+
+        // Function to Add a New Card and Save it
+        function addCard() {
+            card();
+            saveCards(); // Save after adding
+            itemInfo(); // Item values from Django
+        }
+
+        // Load cards when the page loads
+        document.addEventListener("DOMContentLoaded", loadCards);
+
+          {% for x in itemValues %}
+            itemCode.push("{{ x.itemCode }}");
+            itemName.push("{{ x.itemName }}");
+            unitPrice.push("{{ x.unitPrice }}");
+            stock.push("{{ x.stock }}");
+          {% endfor %}
+
+        function itemInfo(){
+          var itemCodeValue = document.getElementsByName("itemCode[]");
+          var itemNameValue = document.getElementsByName("itemName[]");
+          var unitPriceValue = document.getElementsByName("unitPrice[]");
+          var stockValue = document.getElementsByName("stock[]");
+
+          for (var i = 0; i < itemCode.length; i++) {
+            var a = itemCode[i];
+            itemCodeValue[i].value = a;
+            var b = itemName[i];
+            itemNameValue[i].value = b;
+            var c = unitPrice[i];
+            unitPriceValue[i].value = c;
+            var d = stock[i];
+            stockValue[i].value = d;
+          }
+        }
+
+        </script>
+        <!-- ======== Submission Button ========= -->
+        <div class="pt-3 d-flex justify-content-end">
+          <button class="btn btn-success btn-lg" onclick="submission()">Save</button>
+        </div>
+        <script>
+            function submission(){
+              const orderForm = document.querySelector('orderForm');
+              orderForm.submit();
+            }
+          </script>
+      </form>
+    </div>
+
+    <!-- ======== Mouse ========= -->
+    <div class="menu">
+      <div class="menu-list">
+        <div class="section">
+          <!-- ========= For adding cards =========== -->
+          <div class="item" onclick="incrementCounter()">
+            <div class="name">ADD</div>
+          </div>
+          <script>
+              // For adding cards
+              function incrementCounter() {
+                  addCard();
+              }
+            </script>
+          <!-- ========= For deleting cards =========== -->
+          <div class="item" onclick="deleteLastCard()">
+            <div class="name">Delete</div>
+          </div>
+          <script>
+            // For deleting Card
+              function deleteLastCard() {
+                let cards = document.querySelectorAll(".card-item");
+                if (cards.length > 0) {
+                    cards[cards.length - 1].remove(); // Remove the last card
+                    saveCards(); // Save updated list to LocalStorage
+                }
+              }
+            </script>
+        </div>
+      </div>
+    </div>
+    <script>
+      // For Mouse
+        let menu = document.querySelector('.menu')
+        let intiHeight = menu.offsetHeight
+        let initWidth = menu.offsetWidth
+        menu.style.display = 'none'
+        window.addEventListener('contextmenu', (e) => {
+          e.preventDefault()
+
+          let positionX = e.clientX
+          let positionY = e.clientY
+          let wHeight = window.innerHeight
+          let wWidth = window.innerWidth
+
+          let menuHeight = menu.offsetHeight || intiHeight
+          let menuWidth = menu.offsetWidth || initWidth
+
+          let availableHeight = wHeight - positionY
+          let availableWidth = wWidth - positionX
+
+          if (availableHeight >= menuHeight) {
+            menu.style.top = positionY + 'px'
+            menu.style.bottom = 'auto'
+          } else {
+            menu.style.bottom = wHeight - positionY + 'px'
+            menu.style.top = 'auto'
+            if (positionY < menuHeight) {
+              menu.style.top = '0px'
+              menu.style.bottom = 'auto'
+            }
+          }
+
+          if (availableWidth >= menuWidth) {
+            menu.style.left = positionX + 'px'
+            menu.style.right = 'auto'
+          } else {
+            menu.style.right = wWidth - positionX + 'px'
+            menu.style.left = 'auto'
+          }
+          menu.style.display = 'block'
+        })
+
+        window.addEventListener('click', () => {
+          menu.style.display = 'none'
+        })
+      </script>
+  </body>
+</html>
