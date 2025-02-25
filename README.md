@@ -1,0 +1,1 @@
+Date always set to present date. Mouse Right-CLick funnctionality. Add or Delete Data-colomn or Card. Mobile Responsive. Enter button separete form-submission. Save button for Total Order Form Submission.
